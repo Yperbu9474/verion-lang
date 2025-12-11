@@ -1,0 +1,4 @@
+# Basic standard library helpers for Verion Language
+# (Right now, these are just examples and not wired automatically.)
+
+print "Loaded VL stdlib/basic.vl"

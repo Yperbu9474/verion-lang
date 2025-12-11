@@ -1,0 +1,23 @@
+{
+  "name": "verion-lang",
+  "version": "0.1.0",
+  "description": "Verion Language (VL) - experimental high-level scripting language and toolchain.",
+  "bin": {
+    "vl": "./cli/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "node examples/run_examples.js"
+  },
+  "keywords": [
+    "language",
+    "scripting",
+    "compiler",
+    "verion"
+  ],
+  "author": "Verion Tech",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0"
+  }
+}
