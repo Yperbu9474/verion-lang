@@ -1,0 +1,13 @@
+# Loop Example
+
+write "=== Loop Example ==="
+
+write "Counting to 5:"
+repeat 5 times:
+    write "Loop!"
+end
+
+write "Repeating 3 times:"
+repeat 3 times:
+    write "Hello from loop"
+end

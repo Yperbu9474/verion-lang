@@ -1,0 +1,18 @@
+# Variables and Math Example
+
+write "=== Variables and Math ==="
+
+set name to "Cesar"
+write "Name: "
+write name
+
+set x to 5
+set y to 10
+set total to x plus y
+
+write "5 + 10 = "
+write total
+
+set product to x multiply 2
+write "5 * 2 = "
+write product

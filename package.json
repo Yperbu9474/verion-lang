@@ -1,23 +1,48 @@
 {
   "name": "verion-lang",
-  "version": "0.1.0",
-  "description": "Verion Language (VL) - experimental high-level scripting language and toolchain.",
+  "version": "1.0.0",
+  "description": "Verion Language - A simple, English-like programming language for everyone",
   "bin": {
     "vl": "./cli/index.js"
   },
   "type": "module",
+  "main": "./cli/index.js",
   "scripts": {
-    "test": "node examples/run_examples.js"
+    "test": "node examples/run_examples.vl"
   },
   "keywords": [
-    "language",
+    "programming-language",
     "scripting",
     "compiler",
-    "verion"
+    "interpreter",
+    "english-like",
+    "beginner-friendly",
+    "verion",
+    "vl"
   ],
-  "author": "Verion Tech",
+  "author": "Verion Language Contributors",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/verion-lang.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YOUR_USERNAME/verion-lang/issues"
+  },
+  "homepage": "https://github.com/YOUR_USERNAME/verion-lang#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "dependencies": {
     "chalk": "^5.3.0"
-  }
+  },
+  "files": [
+    "cli/",
+    "compiler/",
+    "stdlib/",
+    "examples/",
+    "docs/",
+    "README.md",
+    "LICENSE"
+  ]
 }

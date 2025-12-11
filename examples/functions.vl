@@ -1,0 +1,19 @@
+# Function Example
+
+write "=== Function Example ==="
+
+define greet(name):
+    write "Hello "
+    write name
+end
+
+greet("Alice")
+greet("Bob")
+
+define add(a, b):
+    set result to a plus b
+    write result
+end
+
+write "Adding 5 + 3:"
+add(5, 3)

@@ -1,2 +1,2 @@
-# simplest possible example
-print "Hello from Verion Language example!"
+# Simple Hello World example
+write "Hello from Verion Language!"

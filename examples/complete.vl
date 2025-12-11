@@ -1,0 +1,58 @@
+# Complete Example - All Features
+
+write "=== Verion Language - Complete Example ==="
+write ""
+
+# Variables
+write "1. Variables:"
+set greeting to "Welcome"
+write greeting
+set number to 42
+write number
+write ""
+
+# Math
+write "2. Math Operations:"
+set a to 10
+set b to 5
+set sum to a plus b
+set diff to a minus b
+set prod to a multiply b
+set quot to a divide b
+write "10 + 5 = "
+write sum
+write "10 - 5 = "
+write diff
+write ""
+
+# Functions
+write "3. Functions:"
+define welcome(name):
+    write "Hello, "
+    write name
+end
+
+welcome("World")
+welcome("Verion")
+write ""
+
+# Conditionals
+write "4. Conditionals:"
+set score to 95
+
+if score is greater than 90:
+    write "Excellent!"
+else:
+    write "Good job"
+end
+write ""
+
+# Loops
+write "5. Loops:"
+write "Counting:"
+repeat 3 times:
+    write "Tick"
+end
+write ""
+
+write "=== All tests passed! ==="
