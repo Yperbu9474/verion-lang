@@ -18,6 +18,17 @@ export async function runFile(filePath) {
     // Read source code
     const source = fs.readFileSync(abs, "utf-8");
 
+    // Check if file uses advanced features that require transpilation
+    const advancedFeatures = ['import ', 'require ', 'export ', 'class ', 'async ', 'await ', 'try ', 'catch '];
+    const usesAdvancedFeatures = advancedFeatures.some(feature => source.includes(feature));
+    
+    if (usesAdvancedFeatures) {
+      console.log(chalk.yellow('⚠️  This file uses advanced features (import/require/export/class/async/try).'));
+      console.log(chalk.yellow('   These features require transpilation. Use:'));
+      console.log(chalk.cyan('   vl build ' + path.basename(abs)));
+      console.log(chalk.yellow('   Then run: ') + chalk.cyan('node dist/' + path.basename(abs, '.vl') + '.mjs\n'));
+    }
+
     // Tokenize
     const tokenizer = new Tokenizer(source);
     const tokens = tokenizer.tokenize();

@@ -107,8 +107,17 @@ export class Interpreter {
       case NodeType.WHILE_STATEMENT:
         return this.evaluateWhileStatement(node, env);
 
+      case NodeType.FOR_STATEMENT:
+        return this.evaluateForStatement(node, env);
+
       case NodeType.RETURN_STATEMENT:
         return this.evaluateReturnStatement(node, env);
+
+      case NodeType.BREAK_STATEMENT:
+        throw new Error('Break statement');
+
+      case NodeType.CONTINUE_STATEMENT:
+        throw new Error('Continue statement');
 
       case NodeType.BINARY_EXPRESSION:
         return this.evaluateBinaryExpression(node, env);
@@ -125,11 +134,42 @@ export class Interpreter {
       case NodeType.BOOLEAN_LITERAL:
         return node.value;
 
+      case NodeType.NULL_LITERAL:
+        return null;
+
+      case NodeType.ARRAY_LITERAL:
+        return this.evaluateArrayLiteral(node, env);
+
+      case NodeType.OBJECT_LITERAL:
+        return this.evaluateObjectLiteral(node, env);
+
       case NodeType.MEMBER_EXPRESSION:
         return this.evaluateMemberExpression(node, env);
 
+      case NodeType.INDEX_EXPRESSION:
+        return this.evaluateIndexExpression(node, env);
+
       case NodeType.BLOCK:
         return this.evaluateBlock(node, env);
+
+      case NodeType.IMPORT_STATEMENT:
+      case NodeType.REQUIRE_STATEMENT:
+      case NodeType.EXPORT_STATEMENT:
+        // For interpreter mode, skip import/require/export (they're for transpiled code)
+        console.warn('Import/require/export statements are not supported in interpreter mode. Use "vl build" instead.');
+        return null;
+
+      case 'ExpressionStatement':
+        return this.evaluate(node.expression, env);
+
+      case NodeType.CLASS_DEF:
+      case NodeType.NEW_EXPRESSION:
+      case NodeType.TRY_STATEMENT:
+      case NodeType.THROW_STATEMENT:
+      case NodeType.AWAIT_EXPRESSION:
+        // Advanced features require transpilation
+        console.warn(`${node.type} is not supported in interpreter mode. Use "vl build" instead.`);
+        return null;
 
       default:
         throw new Error(`Unknown node type: ${node.type}`);
@@ -154,13 +194,77 @@ export class Interpreter {
   }
 
   evaluateFunctionCall(node, env) {
-    const func = env.getFunction(node.name);
+    // Handle both string names and identifier/member expression nodes
+    let func;
+    let thisContext = null;
+    let funcName;
+    
+    // node.name can be:
+    // 1. A string (old parser style)
+    // 2. An IDENTIFIER node
+    // 3. A MEMBER_EXPRESSION node
+    // 4. Any other expression that evaluates to a function
+    
+    if (typeof node.name === 'string') {
+      funcName = node.name;
+      // First check if it's a defined function
+      func = env.getFunction(funcName);
+      
+      // If not found as a function, try as a variable (could be function assigned to variable)
+      if (!func) {
+        try {
+          const varValue = env.get(funcName);
+          if (typeof varValue === 'function') {
+            func = { isNative: true, fn: varValue };
+          }
+        } catch (e) {
+          // Variable doesn't exist, that's ok
+        }
+      }
+    } else if (typeof node.name === 'object') {
+      // Handle IDENTIFIER node
+      if (node.name.type === NodeType.IDENTIFIER) {
+        funcName = node.name.name;
+        // First check if it's a defined function
+        func = env.getFunction(funcName);
+        
+        // If not found as a function, try as a variable
+        if (!func) {
+          try {
+            const varValue = env.get(funcName);
+            if (typeof varValue === 'function') {
+              func = { isNative: true, fn: varValue };
+            }
+          } catch (e) {
+            // Variable doesn't exist, that's ok
+          }
+        }
+      } else {
+        // It's a member expression or other computed property
+        const funcValue = this.evaluate(node.name, env);
+        if (typeof funcValue === 'function') {
+          func = { isNative: true, fn: funcValue };
+          // If it's a member expression, get the object for 'this' context
+          if (node.name.type === NodeType.MEMBER_EXPRESSION) {
+            thisContext = this.evaluate(node.name.object, env);
+          }
+        } else {
+          throw new Error(`Value is not a function`);
+        }
+      }
+    }
+    
     if (!func) {
-      throw new Error(`Undefined function: ${node.name}`);
+      throw new Error(`Undefined function: ${funcName || 'unknown'}`);
     }
 
     // Evaluate arguments
     const args = node.arguments.map(arg => this.evaluate(arg, env));
+
+    // If it's a native JavaScript function
+    if (func.isNative) {
+      return func.fn.apply(thisContext, args);
+    }
 
     // Create new environment for function execution
     const funcEnv = new Environment(env);
@@ -251,10 +355,64 @@ export class Interpreter {
     }
   }
 
+  evaluateForStatement(node, env) {
+    const collection = this.evaluate(node.collection, env);
+    
+    if (!Array.isArray(collection)) {
+      throw new Error('For loop requires an array');
+    }
+    
+    let result = null;
+    for (const item of collection) {
+      env.define(node.variable, item);
+      try {
+        result = this.evaluate(node.body, env);
+      } catch (e) {
+        if (e.message === 'Break statement') {
+          break;
+        }
+        if (e.message === 'Continue statement') {
+          continue;
+        }
+        throw e;
+      }
+    }
+    
+    return result;
+  }
+
+  evaluateArrayLiteral(node, env) {
+    return node.elements.map(element => this.evaluate(element, env));
+  }
+
+  evaluateObjectLiteral(node, env) {
+    const obj = {};
+    for (const prop of node.properties) {
+      obj[prop.key] = this.evaluate(prop.value, env);
+    }
+    return obj;
+  }
+
   evaluateMemberExpression(node, env) {
-    const obj = env.get(node.object);
+    let obj;
+    if (typeof node.object === 'string') {
+      obj = env.get(node.object);
+    } else {
+      obj = this.evaluate(node.object, env);
+    }
+    
     if (obj && typeof obj === 'object') {
       return obj[node.property];
+    }
+    return undefined;
+  }
+
+  evaluateIndexExpression(node, env) {
+    const obj = this.evaluate(node.object, env);
+    const index = this.evaluate(node.index, env);
+    
+    if (obj && (Array.isArray(obj) || typeof obj === 'object')) {
+      return obj[index];
     }
     return undefined;
   }
@@ -262,9 +420,17 @@ export class Interpreter {
   evaluateBlock(node, env) {
     let result = null;
     for (const statement of node.statements) {
-      result = this.evaluate(statement, env);
-      // If this is a return value being passed up, don't catch it here
-      // unless we're at the top level
+      try {
+        result = this.evaluate(statement, env);
+      } catch (e) {
+        // Pass through break, continue, and return
+        if (e.message === 'Break statement' || 
+            e.message === 'Continue statement' ||
+            e instanceof ReturnValue) {
+          throw e;
+        }
+        throw e;
+      }
     }
     return result;
   }
