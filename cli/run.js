@@ -1,9 +1,12 @@
 import fs from "fs";
 import path from "path";
+import os from "os";
+import { fork } from "child_process";
 import chalk from "chalk";
 import { Tokenizer } from "../compiler/tokenizer.js";
 import { Parser } from "../compiler/parser.js";
 import { Interpreter } from "../compiler/interpreter.js";
+import { transpile } from "../compiler/transpiler.js";
 
 export async function runFile(filePath) {
   const abs = path.resolve(process.cwd(), filePath);
@@ -23,23 +26,35 @@ export async function runFile(filePath) {
     const usesAdvancedFeatures = advancedFeatures.some(feature => source.includes(feature));
     
     if (usesAdvancedFeatures) {
-      console.log(chalk.yellow('⚠️  This file uses advanced features (import/require/export/class/async/try).'));
-      console.log(chalk.yellow('   These features require transpilation. Use:'));
-      console.log(chalk.cyan('   vl build ' + path.basename(abs)));
-      console.log(chalk.yellow('   Then run: ') + chalk.cyan('node dist/' + path.basename(abs, '.vl') + '.mjs\n'));
+      // Transpile and run
+      const jsCode = transpile(source);
+      
+      // Create a temporary file to execute
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'verion-'));
+      const tempFile = path.join(tempDir, 'temp-run.mjs');
+      fs.writeFileSync(tempFile, jsCode);
+      
+      // Execute the file in a new Node.js process
+      const child = fork(tempFile, { stdio: 'inherit' });
+      
+      child.on('close', (code) => {
+        // Clean up the temporary file and directory
+        fs.unlinkSync(tempFile);
+        fs.rmdirSync(tempDir);
+        if (code !== 0) {
+          console.error(chalk.red(`\nExecution finished with exit code ${code}`));
+        }
+      });
+
+    } else {
+      // Interpret directly for simple scripts
+      const tokenizer = new Tokenizer(source);
+      const tokens = tokenizer.tokenize();
+      const parser = new Parser(tokens);
+      const ast = parser.parse();
+      const interpreter = new Interpreter();
+      interpreter.interpret(ast);
     }
-
-    // Tokenize
-    const tokenizer = new Tokenizer(source);
-    const tokens = tokenizer.tokenize();
-
-    // Parse
-    const parser = new Parser(tokens);
-    const ast = parser.parse();
-
-    // Interpret
-    const interpreter = new Interpreter();
-    interpreter.interpret(ast);
 
   } catch (error) {
     console.error(chalk.red(`\nExecution Error:`));

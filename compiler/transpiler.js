@@ -100,6 +100,8 @@ class JavaScriptGenerator {
         return this.generateIndexExpression(node);
       case NodeType.BLOCK:
         return this.generateBlock(node);
+      case 'ExpressionStatement':
+        return this.generateExpressionStatement(node);
       default:
         throw new Error(`Unknown node type: ${node.type}`);
     }
@@ -453,5 +455,9 @@ class JavaScriptGenerator {
     const object = this.generate(node.object);
     const index = this.generate(node.index);
     return `${object}[${index}]`;
+  }
+
+  generateExpressionStatement(node) {
+    return this.generate(node.expression) + ';';
   }
 }

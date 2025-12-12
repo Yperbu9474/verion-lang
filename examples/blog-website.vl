@@ -3,202 +3,194 @@
 
 require "express" as express
 
-set app to express()
-app.use(express.static("public"))
-app.use(express.json())
+# --- Data ---
+set posts to [
+  { id: 1, title: "Getting Started with Verion Language", content: "Learn how to build web applications with VL", category: "Tutorial", date: "2024-01-15" },
+  { id: 2, title: "Building REST APIs", content: "Create powerful APIs with VL and Express", category: "Guide", date: "2024-01-20" },
+  { id: 3, title: "CSS Tips and Tricks", content: "Master modern CSS techniques", category: "Design", date: "2024-01-25" }
+]
 
-# Sample blog posts data (using simple approach for parser compatibility)
-set posts to []
+# --- Styles ---
+set styles to "
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f5f5f5;
+  }
+  
+  /* Header */
+  header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  
+  header .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+  }
+  
+  header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+  }
+  
+  header p {
+      opacity: 0.9;
+  }
+  
+  /* Navigation */
+  nav {
+      background: white;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 1rem 0;
+  }
+  
+  nav .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      gap: 2rem;
+  }
+  
+  nav a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+  }
+  
+  nav a:hover {
+      color: #764ba2;
+  }
+  
+  /* Main Content */
+  .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+  }
+  
+  /* Blog Grid */
+  .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+  }
+  
+  .blog-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .blog-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+  }
+  
+  .blog-card-header {
+      height: 200px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 4rem;
+  }
+  
+  .blog-card-body {
+      padding: 1.5rem;
+  }
+  
+  .blog-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      color: #888;
+  }
+  
+  .category {
+      background: #667eea;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+  }
+  
+  .blog-card h2 {
+      color: #333;
+      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+  }
+  
+  .blog-card p {
+      color: #666;
+      margin-bottom: 1rem;
+  }
+  
+  .read-more {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+  }
+  
+  .read-more:hover {
+      color: #764ba2;
+  }
+  
+  /* Single Post */
+  .post-header {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+  }
+  
+  .post-header h1 {
+      color: #333;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+  }
+  
+  .post-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      line-height: 1.8;
+  }
+  
+  /* Footer */
+  footer {
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+      margin-top: 4rem;
+  }
+  
+  @media (max-width: 768px) {
+      .blog-grid {
+          grid-template-columns: 1fr;
+      }
+      header h1 { font-size: 2rem; }
+  }
+"
 
-set post1 to { id: 1, title: "Getting Started with Verion Language", excerpt: "Learn how to build web applications with VL", category: "Tutorial", date: "2024-01-15" }
-set post2 to { id: 2, title: "Building REST APIs", excerpt: "Create powerful APIs with VL and Express", category: "Guide", date: "2024-01-20" }
-set post3 to { id: 3, title: "CSS Tips and Tricks", excerpt: "Master modern CSS techniques", category: "Design", date: "2024-01-25" }
-
-posts.push(post1)
-posts.push(post2)
-posts.push(post3)
-
-define getStyles():
-    return "
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: #f5f5f5;
-        }
-        
-        /* Header */
-        header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 2rem 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        header .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-        
-        header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        header p {
-            opacity: 0.9;
-        }
-        
-        /* Navigation */
-        nav {
-            background: white;
-            border-bottom: 1px solid #e0e0e0;
-            padding: 1rem 0;
-        }
-        
-        nav .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            gap: 2rem;
-        }
-        
-        nav a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        
-        nav a:hover {
-            color: #764ba2;
-        }
-        
-        /* Main Content */
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-        
-        /* Blog Grid */
-        .blog-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        
-        .blog-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .blog-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
-        }
-        
-        .blog-card-header {
-            height: 200px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 4rem;
-        }
-        
-        .blog-card-body {
-            padding: 1.5rem;
-        }
-        
-        .blog-meta {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            color: #888;
-        }
-        
-        .category {
-            background: #667eea;
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-        }
-        
-        .blog-card h2 {
-            color: #333;
-            margin-bottom: 0.5rem;
-            font-size: 1.5rem;
-        }
-        
-        .blog-card p {
-            color: #666;
-            margin-bottom: 1rem;
-        }
-        
-        .read-more {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .read-more:hover {
-            color: #764ba2;
-        }
-        
-        /* Single Post */
-        .post-header {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-        }
-        
-        .post-header h1 {
-            color: #333;
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .post-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            line-height: 1.8;
-        }
-        
-        /* Footer */
-        footer {
-            background: #333;
-            color: white;
-            text-align: center;
-            padding: 2rem;
-            margin-top: 4rem;
-        }
-        
-        @media (max-width: 768px) {
-            .blog-grid {
-                grid-template-columns: 1fr;
-            }
-            header h1 { font-size: 2rem; }
-        }
-    "
-end
-
+# --- HTML Components ---
 define renderHeader(title, subtitle):
     return "<header><div class='container'><h1>" plus title plus "</h1><p>" plus subtitle plus "</p></div></header>"
 end
@@ -211,9 +203,13 @@ define renderFooter():
     return "<footer><p>My Awesome Blog - Built with Verion Language</p><p>© 2024 All rights reserved</p></footer>"
 end
 
+# --- App Setup ---
+set app to express()
+set PORT to 3000
+
+# --- Routes ---
 # Homepage
 app.get("/", define(req, res):
-    set styles to getStyles()
     set header to renderHeader("My Awesome Blog", "Thoughts, stories, and ideas")
     set nav to renderNav()
     set footer to renderFooter()
@@ -248,7 +244,6 @@ app.get("/post/:id", define(req, res):
         return
     end
     
-    set styles to getStyles()
     set header to renderHeader("My Awesome Blog", "Thoughts, stories, and ideas")
     set nav to renderNav()
     set footer to renderFooter()
@@ -262,7 +257,6 @@ end)
 
 # About page
 app.get("/about", define(req, res):
-    set styles to getStyles()
     set header to renderHeader("About Us", "Learn more about our blog")
     set nav to renderNav()
     set footer to renderFooter()
@@ -274,7 +268,7 @@ app.get("/about", define(req, res):
     res.send(html)
 end)
 
-set PORT to 3000
+# --- Start Server ---
 app.listen(PORT, define():
     write "📚 Blog website running on http://localhost:" plus PORT
     write ""

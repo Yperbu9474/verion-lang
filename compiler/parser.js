@@ -6,6 +6,7 @@ import { TokenType } from './tokenizer.js';
 // AST Node Types
 export const NodeType = {
   PROGRAM: 'Program',
+  EXPRESSION_STATEMENT: 'ExpressionStatement',
   WRITE_STATEMENT: 'WriteStatement',
   ASSIGNMENT: 'Assignment',
   FUNCTION_DEF: 'FunctionDefinition',
@@ -140,13 +141,12 @@ export class Parser {
         // Could be a function call, member expression, or await statement
         // Parse as expression to handle complex cases like app.use(), await func(), etc.
         const expr = this.parseExpression();
-        // If it's a function call, member expression, or await, treat as expression statement
-        if (expr.type === NodeType.FUNCTION_CALL || 
-            expr.type === NodeType.MEMBER_EXPRESSION || 
-            expr.type === NodeType.AWAIT_EXPRESSION) {
-          return expr;
-        }
-        break;
+        
+        return {
+          type: NodeType.EXPRESSION_STATEMENT,
+          expression: expr
+        };
+        
       case TokenType.NEWLINE:
         this.advance();
         return null;
@@ -158,6 +158,7 @@ export class Parser {
   parseWriteStatement() {
     this.expect(TokenType.WRITE);
     const expression = this.parseExpression();
+    this.skipNewlines();
     
     return {
       type: NodeType.WRITE_STATEMENT,
@@ -178,6 +179,7 @@ export class Parser {
     this.expect(TokenType.TO);
     
     const value = this.parseExpression();
+    this.skipNewlines();
     
     return {
       type: NodeType.ASSIGNMENT,
