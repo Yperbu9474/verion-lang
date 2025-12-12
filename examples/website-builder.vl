@@ -1,0 +1,217 @@
+# Web Framework - HTML and CSS Builder for Verion Language
+
+require "express" as express
+require "path" as path
+require "fs" as fs
+
+set app to express()
+
+# Serve static files (CSS, JS, images)
+app.use(express.static("public"))
+
+# HTML Builder Functions
+define html(content):
+    return "<!DOCTYPE html><html>" plus content plus "</html>"
+end
+
+define head(title, styles):
+    set styleTag to ""
+    if styles:
+        set styleTag to "<style>" plus styles plus "</style>"
+    end
+    return "<head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>" plus title plus "</title>" plus styleTag plus "</head>"
+end
+
+define body(content):
+    return "<body>" plus content plus "</body>"
+end
+
+define div(className, content):
+    return "<div class='" plus className plus "'>" plus content plus "</div>"
+end
+
+define h1(text):
+    return "<h1>" plus text plus "</h1>"
+end
+
+define h2(text):
+    return "<h2>" plus text plus "</h2>"
+end
+
+define p(text):
+    return "<p>" plus text plus "</p>"
+end
+
+define button(text, onclick):
+    return "<button onclick='" plus onclick plus "'>" plus text plus "</button>"
+end
+
+define link(href, text):
+    return "<a href='" plus href plus "'>" plus text plus "</a>"
+end
+
+define image(src, alt):
+    return "<img src='" plus src plus "' alt='" plus alt plus "'/>"
+end
+
+define navbar(brand, links):
+    set navContent to "<div class='navbar'><div class='brand'>" plus brand plus "</div><div class='nav-links'>"
+    for item in links:
+        set navContent to navContent plus "<a href='" plus item.href plus "'>" plus item.text plus "</a>"
+    end
+    set navContent to navContent plus "</div></div>"
+    return navContent
+end
+
+define card(title, text, buttonText, buttonLink):
+    return "<div class='card'><h3>" plus title plus "</h3><p>" plus text plus "</p><a href='" plus buttonLink plus "' class='btn'>" plus buttonText plus "</a></div>"
+end
+
+define container(content):
+    return "<div class='container'>" plus content plus "</div>"
+end
+
+# CSS Builder Functions
+define css(styles):
+    return styles
+end
+
+# Routes
+app.get("/", define(req, res):
+    # Define CSS
+    set styles to "
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; }
+        .navbar { background: #333; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .navbar .brand { font-size: 1.5rem; font-weight: bold; }
+        .navbar .nav-links a { color: white; text-decoration: none; margin-left: 2rem; }
+        .navbar .nav-links a:hover { color: #4CAF50; }
+        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4rem 2rem; text-align: center; }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+        .hero p { font-size: 1.2rem; margin-bottom: 2rem; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 2rem; }
+        .card h3 { color: #333; margin-bottom: 1rem; }
+        .card p { color: #666; margin-bottom: 1.5rem; }
+        .btn { display: inline-block; background: #4CAF50; color: white; padding: 0.8rem 1.5rem; text-decoration: none; border-radius: 4px; }
+        .btn:hover { background: #45a049; }
+        .footer { background: #333; color: white; text-align: center; padding: 2rem; margin-top: 3rem; }
+    "
+    
+    # Build navigation
+    set navLinks to [
+        { href: "/", text: "Home" },
+        { href: "/about", text: "About" },
+        { href: "/contact", text: "Contact" }
+    ]
+    set nav to navbar("My Website", navLinks)
+    
+    # Build hero section
+    set hero to div("hero", h1("Welcome to Verion Language") plus p("Build beautiful websites with clean, readable syntax"))
+    
+    # Build cards
+    set card1 to card("Easy Syntax", "Write code that reads like English", "Learn More", "/docs")
+    set card2 to card("Full Stack", "Build complete web applications", "Get Started", "/start")
+    set card3 to card("Interoperable", "Works with Node.js and Python", "See Examples", "/examples")
+    
+    set cardsSection to div("cards", card1 plus card2 plus card3)
+    
+    # Build footer
+    set footer to div("footer", p("Made with Verion Language ❤️"))
+    
+    # Build complete page
+    set pageHead to head("Verion Language", styles)
+    set pageBody to body(nav plus hero plus container(h2("Features") plus cardsSection) plus footer)
+    set page to html(pageHead plus pageBody)
+    
+    res.send(page)
+end)
+
+app.get("/about", define(req, res):
+    set styles to "
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; background: #f4f4f4; }
+        .navbar { background: #333; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .navbar .brand { font-size: 1.5rem; font-weight: bold; }
+        .navbar .nav-links a { color: white; text-decoration: none; margin-left: 2rem; }
+        .container { max-width: 800px; margin: 2rem auto; background: white; padding: 3rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; margin-bottom: 1rem; }
+        p { color: #666; margin-bottom: 1rem; }
+    "
+    
+    set navLinks to [
+        { href: "/", text: "Home" },
+        { href: "/about", text: "About" },
+        { href: "/contact", text: "Contact" }
+    ]
+    set nav to navbar("My Website", navLinks)
+    
+    set content to h1("About Us") plus p("Verion Language is a modern programming language designed for simplicity and readability.") plus p("Build web applications, REST APIs, Discord bots, and more with English-like syntax.")
+    
+    set pageHead to head("About - Verion Language", styles)
+    set pageBody to body(nav plus container(content))
+    set page to html(pageHead plus pageBody)
+    
+    res.send(page)
+end)
+
+app.get("/contact", define(req, res):
+    set styles to "
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; background: #f4f4f4; }
+        .navbar { background: #333; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .navbar .brand { font-size: 1.5rem; font-weight: bold; }
+        .navbar .nav-links a { color: white; text-decoration: none; margin-left: 2rem; }
+        .container { max-width: 800px; margin: 2rem auto; background: white; padding: 3rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; margin-bottom: 2rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; color: #333; font-weight: 500; }
+        input, textarea { width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; }
+        textarea { min-height: 150px; }
+        .btn { background: #4CAF50; color: white; padding: 1rem 2rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; }
+        .btn:hover { background: #45a049; }
+    "
+    
+    set navLinks to [
+        { href: "/", text: "Home" },
+        { href: "/about", text: "About" },
+        { href: "/contact", text: "Contact" }
+    ]
+    set nav to navbar("My Website", navLinks)
+    
+    set formContent to "
+        <h1>Contact Us</h1>
+        <form>
+            <div class='form-group'>
+                <label>Name</label>
+                <input type='text' placeholder='Your name' required/>
+            </div>
+            <div class='form-group'>
+                <label>Email</label>
+                <input type='email' placeholder='your@email.com' required/>
+            </div>
+            <div class='form-group'>
+                <label>Message</label>
+                <textarea placeholder='Your message...' required></textarea>
+            </div>
+            <button class='btn' type='submit'>Send Message</button>
+        </form>
+    "
+    
+    set pageHead to head("Contact - Verion Language", styles)
+    set pageBody to body(nav plus container(formContent))
+    set page to html(pageHead plus pageBody)
+    
+    res.send(page)
+end)
+
+set PORT to 3000
+app.listen(PORT, define():
+    write "🌐 Website running on http://localhost:" plus PORT
+    write ""
+    write "Pages available:"
+    write "  • http://localhost:" plus PORT
+    write "  • http://localhost:" plus PORT plus "/about"
+    write "  • http://localhost:" plus PORT plus "/contact"
+end)
