@@ -1,6 +1,6 @@
 {
   "name": "verion-lang",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "Verion Language - An English-like programming language",
   "main": "dist/index.js",
   "bin": {
