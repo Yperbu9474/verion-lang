@@ -1,6 +1,6 @@
 {
   "name": "verion-lang",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Verion Language - A simple, English-like programming language for everyone",
   "bin": {
     "vl": "./cli/index.js"
