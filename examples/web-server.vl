@@ -1,0 +1,108 @@
+# Web Server Example - Verion Language
+# A simple Express.js web server with routes and API endpoints
+
+# Import Express
+require "express" as express
+
+# Create app
+set app to express()
+
+# Middleware for JSON
+app.use(express.json())
+
+# Homepage route
+app.get("/", define(req, res):
+    res.send("Welcome to Verion Language Web Server! 🚀")
+end)
+
+# About page
+app.get("/about", define(req, res):
+    set aboutData to {
+        name: "Verion Server",
+        version: "1.0.0",
+        description: "A web server built with Verion Language"
+    }
+    res.json(aboutData)
+end)
+
+# API endpoint - Get user
+app.get("/api/users/:id", define(req, res):
+    set userId to req.params.id
+    set user to {
+        id: userId,
+        name: "John Doe",
+        email: "john@example.com"
+    }
+    res.json(user)
+end)
+
+# API endpoint - Create user (POST)
+app.post("/api/users", define(req, res):
+    set userData to req.body
+    write "New user created:"
+    write userData
+    
+    res.status(201).json({
+        message: "User created successfully",
+        user: userData
+    })
+end)
+
+# Hello with query parameters
+app.get("/hello", define(req, res):
+    set name to req.query.name
+    
+    if name:
+        set greeting to "Hello, " plus name plus "! 👋"
+        res.send(greeting)
+    else:
+        res.send("Hello, stranger! 👋")
+    end
+end)
+
+# Calculator API
+app.get("/calc/:operation/:a/:b", define(req, res):
+    set op to req.params.operation
+    set a to Number(req.params.a)
+    set b to Number(req.params.b)
+    set result to 0
+    
+    if op is equals "add":
+        set result to a plus b
+    end
+    
+    if op is equals "subtract":
+        set result to a minus b
+    end
+    
+    if op is equals "multiply":
+        set result to a multiply b
+    end
+    
+    if op is equals "divide":
+        if b is equals 0:
+            res.json({ error: "Cannot divide by zero" })
+            return
+        end
+        set result to a divide b
+    end
+    
+    res.json({
+        operation: op,
+        a: a,
+        b: b,
+        result: result
+    })
+end)
+
+# 404 handler
+app.use(define(req, res):
+    res.status(404).send("Page not found! 😔")
+end)
+
+# Start server
+set PORT to 3000
+app.listen(PORT, define():
+    write "Server running on http://localhost:"
+    write PORT
+end)

@@ -1,0 +1,22 @@
+# Return Statement Example
+
+write "=== Return Statement Example ==="
+
+define square(x):
+    return x multiply x
+end
+
+define max(a, b):
+    if a is greater than b:
+        return a
+    end
+    return b
+end
+
+set result to square(5)
+write "Square of 5 is:"
+write result
+
+set largest to max(10, 7)
+write "Max of 10 and 7 is:"
+write largest

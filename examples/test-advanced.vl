@@ -1,0 +1,72 @@
+# Test Advanced Features
+
+write "=== Testing Advanced VL Features ==="
+write ""
+
+# Test objects
+write "1. Testing objects:"
+set user to { name: "Alice", age: 30 }
+write "Name: " plus user.name
+write ""
+
+# Test arrays
+write "2. Testing arrays:"
+set numbers to [10, 20, 30]
+write "First number: " plus numbers[0]
+
+# Test for loop
+write "3. Testing for loop:"
+set fruits to ["apple", "banana", "orange"]
+for fruit in fruits:
+    write fruit
+end
+write ""
+
+# Test class
+write "4. Testing class:"
+class Calculator:
+    define constructor():
+        write "Calculator created"
+    end
+    
+    define add(a, b):
+        return a plus b
+    end
+    
+    define multiply(x, y):
+        return x multiply y
+    end
+end
+
+set calc to new Calculator()
+set sum to calc.add(5, 3)
+write "5 + 3 = " plus sum
+
+set product to calc.multiply(4, 7)
+write "4 * 7 = " plus product
+write ""
+
+# Test try-catch
+write "5. Testing try-catch:"
+try:
+    write "In try block"
+    set result to 10 divide 2
+    write "Result: " plus result
+catch error:
+    write "Error caught: " plus error.message
+end
+write ""
+
+# Test break and continue
+write "6. Testing break:"
+set numbers to [1, 2, 3, 4, 5]
+for num in numbers:
+    if num is equals 3:
+        write "Breaking at 3"
+        break
+    end
+    write num
+end
+write ""
+
+write "=== All tests completed! ==="

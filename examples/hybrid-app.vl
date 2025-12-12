@@ -1,0 +1,95 @@
+# Hybrid Application - Node.js + Python + Verion Language
+# Demonstrates using all three together
+
+require "express" as express
+require "child_process" as child_process
+require "util" as util
+
+write "🚀 Starting Hybrid App (Node + Python + VL)..."
+
+set app to express()
+app.use(express.json())
+
+# Helper to run Python
+async define runPython(code):
+    set exec to util.promisify(child_process.exec)
+    set command to "python -c \"" plus code plus "\""
+    set result to await exec(command)
+    return result.stdout.trim()
+end
+
+# Route 1: Pure Node.js/VL
+app.get("/", define(req, res):
+    res.json({
+        message: "Hybrid App running!",
+        languages: ["Node.js", "Python", "Verion Language"],
+        status: "operational"
+    })
+end)
+
+# Route 2: Call Python for calculation
+app.get("/python/sqrt/:number", async define(req, res):
+    set number to req.params.number
+    set pythonCode to "import math; print(math.sqrt(" plus number plus "))"
+    
+    try:
+        set result to await runPython(pythonCode)
+        res.json({
+            input: number,
+            result: result,
+            computed_by: "Python"
+        })
+    catch error:
+        res.status(500).json({
+            error: error.message
+        })
+    end
+end)
+
+# Route 3: Python data processing
+app.post("/python/process", async define(req, res):
+    set data to req.body.data
+    set jsonData to JSON.stringify(data)
+    set pythonCode to "import json; data = json.loads('" plus jsonData plus "'); result = [x * 2 for x in data]; print(json.dumps(result))"
+    
+    try:
+        set result to await runPython(pythonCode)
+        set processed to JSON.parse(result)
+        res.json({
+            original: data,
+            processed: processed,
+            processed_by: "Python"
+        })
+    catch error:
+        res.status(500).json({
+            error: error.message
+        })
+    end
+end)
+
+# Route 4: Node.js processing
+app.post("/node/process", define(req, res):
+    set data to req.body.data
+    set processed to []
+    
+    for item in data:
+        processed.push(item multiply 2)
+    end
+    
+    res.json({
+        original: data,
+        processed: processed,
+        processed_by: "Node.js"
+    })
+end)
+
+set PORT to 3000
+app.listen(PORT, define():
+    write "✅ Hybrid app running on http://localhost:" plus PORT
+    write ""
+    write "Endpoints:"
+    write "  GET  / - App info"
+    write "  GET  /python/sqrt/:number - Python calculation"
+    write "  POST /python/process - Python data processing"
+    write "  POST /node/process - Node.js data processing"
+end)

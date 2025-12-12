@@ -1,0 +1,22 @@
+# VL Module Export Example
+# Build this with: vl build vl-exportable.vl
+# Then use from Node.js: import * as vl from './dist/vl-exportable.mjs'
+
+# Simple helper functions
+define greet(name):
+    return "Hello from VL, " plus name plus "!"
+end
+
+define add(a, b):
+    return a plus b
+end
+
+define multiply(x, y):
+    return x multiply y
+end
+
+# Note: Functions are already defined above
+# In VL, you typically export full definitions, not just names
+
+# For now, the functions above can be called if this module is imported after transpiling
+# The transpiled .mjs file will have regular JavaScript functions that can be imported

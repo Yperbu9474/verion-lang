@@ -1,0 +1,57 @@
+# Discord Bot Example - Verion Language
+# A simple Discord bot that responds to commands
+
+# Import Discord.js library
+import { Client, GatewayIntentBits } from "discord.js"
+
+# Create bot client
+set client to new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
+    ]
+})
+
+# Bot ready event
+client.on("ready", async define():
+    write "Bot is online!"
+    write client.user.tag
+end)
+
+# Message handler
+client.on("messageCreate", async define(message):
+    # Ignore bot messages
+    if message.author.bot is equals true:
+        return
+    end
+    
+    # Command: !ping
+    if message.content is equals "!ping":
+        await message.reply("Pong! 🏓")
+    end
+    
+    # Command: !hello
+    if message.content is equals "!hello":
+        set greeting to "Hello, "
+        set fullGreeting to greeting plus message.author.username
+        await message.reply(fullGreeting)
+    end
+    
+    # Command: !roll
+    if message.content is equals "!roll":
+        set randomNum to Math.floor(Math.random() multiply 6) plus 1
+        set response to "You rolled a " plus randomNum plus "! 🎲"
+        await message.reply(response)
+    end
+    
+    # Command: !help
+    if message.content is equals "!help":
+        set helpText to "**Available Commands:**\n!ping - Check if bot is responsive\n!hello - Get a greeting\n!roll - Roll a dice\n!help - Show this message"
+        await message.reply(helpText)
+    end
+end)
+
+# Login to Discord
+# Replace with your bot token
+client.login("YOUR_BOT_TOKEN_HERE")

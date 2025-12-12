@@ -6,6 +6,7 @@ export const TokenType = {
   STRING: 'STRING',
   NUMBER: 'NUMBER',
   IDENTIFIER: 'IDENTIFIER',
+  NULL: 'NULL',
   
   // Keywords
   WRITE: 'WRITE',
@@ -15,12 +16,41 @@ export const TokenType = {
   END: 'END',
   IF: 'IF',
   ELSE: 'ELSE',
+  ELIF: 'ELIF',
   REPEAT: 'REPEAT',
   TIMES: 'TIMES',
   WHILE: 'WHILE',
+  FOR: 'FOR',
+  IN: 'IN',
   RETURN: 'RETURN',
   TRUE: 'TRUE',
   FALSE: 'FALSE',
+  BREAK: 'BREAK',
+  CONTINUE: 'CONTINUE',
+  
+  // Imports/Exports
+  IMPORT: 'IMPORT',
+  REQUIRE: 'REQUIRE',
+  EXPORT: 'EXPORT',
+  AS: 'AS',
+  
+  // Async
+  ASYNC: 'ASYNC',
+  AWAIT: 'AWAIT',
+  
+  // Classes
+  CLASS: 'CLASS',
+  NEW: 'NEW',
+  THIS: 'THIS',
+  CONSTRUCTOR: 'CONSTRUCTOR',
+  
+  // Try/Catch
+  TRY: 'TRY',
+  CATCH: 'CATCH',
+  FINALLY: 'FINALLY',
+  THROW: 'THROW',
+  
+  // Special keywords
   WHEN: 'WHEN',
   BOT: 'BOT',
   LOGIN: 'LOGIN',
@@ -32,10 +62,18 @@ export const TokenType = {
   SERVER: 'SERVER',
   AT: 'AT',
   GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  DELETE: 'DELETE',
   RESPOND: 'RESPOND',
   FROM: 'FROM',
   ALL: 'ALL',
   ROWS: 'ROWS',
+  LISTEN: 'LISTEN',
+  ON: 'ON',
+  SEND: 'SEND',
+  REQUEST: 'REQUEST',
+  RESPONSE: 'RESPONSE',
   
   // Operators
   PLUS: 'PLUS',
@@ -59,24 +97,61 @@ export const TokenType = {
   RPAREN: 'RPAREN',
   LBRACKET: 'LBRACKET',
   RBRACKET: 'RBRACKET',
+  LBRACE: 'LBRACE',
+  RBRACE: 'RBRACE',
   NEWLINE: 'NEWLINE',
   EOF: 'EOF'
 };
 
 const KEYWORDS = {
   'write': TokenType.WRITE,
+  'print': TokenType.WRITE,  // Alias for write
   'set': TokenType.SET,
   'to': TokenType.TO,
   'define': TokenType.DEFINE,
+  'function': TokenType.DEFINE,  // Alias
   'end': TokenType.END,
   'if': TokenType.IF,
   'else': TokenType.ELSE,
+  'elif': TokenType.ELIF,
+  'elseif': TokenType.ELIF,
   'repeat': TokenType.REPEAT,
   'times': TokenType.TIMES,
   'while': TokenType.WHILE,
+  'for': TokenType.FOR,
+  'in': TokenType.IN,
   'return': TokenType.RETURN,
   'true': TokenType.TRUE,
   'false': TokenType.FALSE,
+  'null': TokenType.NULL,
+  'none': TokenType.NULL,
+  'break': TokenType.BREAK,
+  'continue': TokenType.CONTINUE,
+  
+  // Imports/Exports
+  'import': TokenType.IMPORT,
+  'require': TokenType.REQUIRE,
+  'export': TokenType.EXPORT,
+  'as': TokenType.AS,
+  'from': TokenType.FROM,
+  
+  // Async
+  'async': TokenType.ASYNC,
+  'await': TokenType.AWAIT,
+  
+  // Classes
+  'class': TokenType.CLASS,
+  'new': TokenType.NEW,
+  'this': TokenType.THIS,
+  'constructor': TokenType.CONSTRUCTOR,
+  
+  // Try/Catch
+  'try': TokenType.TRY,
+  'catch': TokenType.CATCH,
+  'finally': TokenType.FINALLY,
+  'throw': TokenType.THROW,
+  
+  // Special keywords
   'when': TokenType.WHEN,
   'bot': TokenType.BOT,
   'login': TokenType.LOGIN,
@@ -88,10 +163,19 @@ const KEYWORDS = {
   'server': TokenType.SERVER,
   'at': TokenType.AT,
   'get': TokenType.GET,
+  'post': TokenType.POST,
+  'put': TokenType.PUT,
+  'delete': TokenType.DELETE,
   'respond': TokenType.RESPOND,
-  'from': TokenType.FROM,
   'all': TokenType.ALL,
   'rows': TokenType.ROWS,
+  'listen': TokenType.LISTEN,
+  'on': TokenType.ON,
+  'send': TokenType.SEND,
+  'request': TokenType.REQUEST,
+  'response': TokenType.RESPONSE,
+  
+  // Operators
   'plus': TokenType.PLUS,
   'minus': TokenType.MINUS,
   'multiply': TokenType.MULTIPLY,
@@ -102,7 +186,8 @@ const KEYWORDS = {
   'than': TokenType.THAN,
   'equals': TokenType.EQUALS,
   'and': TokenType.AND,
-  'or': TokenType.OR
+  'or': TokenType.OR,
+  'not': TokenType.NOT
 };
 
 export class Token {
@@ -293,6 +378,14 @@ export class Tokenizer {
           break;
         case ']':
           this.tokens.push(new Token(TokenType.RBRACKET, ']', startLine, startColumn));
+          this.advance();
+          break;
+        case '{':
+          this.tokens.push(new Token(TokenType.LBRACE, '{', startLine, startColumn));
+          this.advance();
+          break;
+        case '}':
+          this.tokens.push(new Token(TokenType.RBRACE, '}', startLine, startColumn));
           this.advance();
           break;
         case '+':

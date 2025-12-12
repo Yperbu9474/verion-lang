@@ -1,0 +1,45 @@
+# Verion Language Module
+# Can be imported by Node.js after building
+
+# Helper functions that can be exported
+define greet(name):
+    return "Hello, " plus name plus " from VL!"
+end
+
+define add(a, b):
+    return a plus b
+end
+
+define multiply(x, y):
+    return x multiply y
+end
+
+define createUser(name, age, email):
+    return {
+        name: name,
+        age: age,
+        email: email,
+        greeting: "Hello, " plus name
+    }
+end
+
+async define fetchData(url):
+    try:
+        set response to await fetch(url)
+        set data to await response.json()
+        return data
+    catch error:
+        return { error: error.message }
+    end
+end
+
+# Export functions for use in Node.js
+export define greet
+export define add
+export define multiply
+export define createUser
+export define fetchData
+
+# You can also export variables
+export set VERSION to "1.0.0"
+export set LIBRARY_NAME to "VL Module"

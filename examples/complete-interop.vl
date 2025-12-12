@@ -1,0 +1,61 @@
+# Complete Interoperability Example
+# Shows VL working with Node.js ecosystem
+
+write "=== Verion Language Interoperability Demo ==="
+write ""
+
+# 1. Using Node.js built-in modules
+write "1. Using Node.js built-in modules:"
+require "path" as path
+require "os" as os
+
+set homedir to os.homedir()
+write "Home directory: " plus homedir
+
+set joined to path.join("examples", "test.vl")
+write "Path join: " plus joined
+write ""
+
+# 2. Using npm packages (if installed)
+write "2. Using npm packages:"
+write "You can install and use any npm package:"
+write "  vl pkg add express"
+write "  vl pkg add axios"
+write "  vl pkg add lodash"
+write ""
+
+# 3. Define functions that Node.js can import
+write "3. Exportable functions (after building):"
+
+define calculateTax(amount, rate):
+    set tax to amount multiply rate
+    return tax
+end
+
+define formatCurrency(amount):
+    return "$" plus amount
+end
+
+define processOrder(items):
+    set total to 0
+    for item in items:
+        set total to total plus item.price
+    end
+    return total
+end
+
+write "  - calculateTax(amount, rate)"
+write "  - formatCurrency(amount)"
+write "  - processOrder(items)"
+write ""
+
+# 4. Demonstrate usage
+write "4. Example usage:"
+set taxAmount to calculateTax(100, 0.08)
+write "Tax on $100 at 8%: " plus formatCurrency(taxAmount)
+write ""
+
+write "=== Build this file and import in Node.js: ==="
+write "  vl build complete-interop.vl"
+write "  import * as vl from './dist/complete-interop.mjs'"
+write "  vl.calculateTax(100, 0.08)"

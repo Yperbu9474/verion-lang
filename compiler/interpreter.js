@@ -3,6 +3,12 @@
 
 import { NodeType } from './parser.js';
 
+class ReturnValue {
+  constructor(value) {
+    this.value = value;
+  }
+}
+
 export class Environment {
   constructor(parent = null) {
     this.parent = parent;
@@ -98,6 +104,12 @@ export class Interpreter {
       case NodeType.REPEAT_STATEMENT:
         return this.evaluateRepeatStatement(node, env);
 
+      case NodeType.WHILE_STATEMENT:
+        return this.evaluateWhileStatement(node, env);
+
+      case NodeType.RETURN_STATEMENT:
+        return this.evaluateReturnStatement(node, env);
+
       case NodeType.BINARY_EXPRESSION:
         return this.evaluateBinaryExpression(node, env);
 
@@ -108,6 +120,9 @@ export class Interpreter {
         return node.value;
 
       case NodeType.NUMBER_LITERAL:
+        return node.value;
+
+      case NodeType.BOOLEAN_LITERAL:
         return node.value;
 
       case NodeType.MEMBER_EXPRESSION:
@@ -156,7 +171,14 @@ export class Interpreter {
     }
 
     // Execute function body
-    return this.evaluate(func.body, funcEnv);
+    try {
+      return this.evaluate(func.body, funcEnv);
+    } catch (e) {
+      if (e instanceof ReturnValue) {
+        return e.value;
+      }
+      throw e;
+    }
   }
 
   evaluateIfStatement(node, env) {
@@ -184,6 +206,21 @@ export class Interpreter {
     }
     
     return result;
+  }
+
+  evaluateWhileStatement(node, env) {
+    let result = null;
+    
+    while (this.isTruthy(this.evaluate(node.condition, env))) {
+      result = this.evaluate(node.body, env);
+    }
+    
+    return result;
+  }
+
+  evaluateReturnStatement(node, env) {
+    const value = node.value ? this.evaluate(node.value, env) : null;
+    throw new ReturnValue(value);
   }
 
   evaluateBinaryExpression(node, env) {
@@ -226,6 +263,8 @@ export class Interpreter {
     let result = null;
     for (const statement of node.statements) {
       result = this.evaluate(statement, env);
+      // If this is a return value being passed up, don't catch it here
+      // unless we're at the top level
     }
     return result;
   }

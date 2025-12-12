@@ -13,10 +13,23 @@ export async function addPackage(name) {
 
   console.log(chalk.cyan(`Installing npm package: ${name} ...`));
   await new Promise((resolve, reject) => {
-    const child = exec(`npm install ${name}`, { cwd, stdio: "inherit" });
+    const child = exec(`npm install ${name}`, { cwd });
+    
+    child.stdout?.on('data', (data) => {
+      process.stdout.write(data);
+    });
+    
+    child.stderr?.on('data', (data) => {
+      process.stderr.write(data);
+    });
+    
     child.on("exit", code => {
       if (code === 0) resolve();
-      else reject(new Error(`npm exited with code ${code}`));
+      else reject(new Error(`npm install failed with exit code ${code}`));
+    });
+    
+    child.on("error", (err) => {
+      reject(new Error(`Failed to start npm: ${err.message}`));
     });
   });
 

@@ -1,0 +1,12 @@
+# While Loop Example
+
+write "=== While Loop Example ==="
+
+set counter to 0
+
+while counter is less than 5:
+    write counter
+    set counter to counter plus 1
+end
+
+write "Done!"

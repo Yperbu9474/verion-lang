@@ -1,0 +1,79 @@
+# Python Interoperability Example
+# Shows how to call Python from Verion Language
+
+require "child_process" as child_process
+require "util" as util
+
+write "=== Python + Verion Language Interop Example ==="
+write ""
+
+# Example 1: Run inline Python code
+async define runInlinePython():
+    write "1. Running inline Python code:"
+    
+    set exec to util.promisify(child_process.exec)
+    set pythonCode to "print('Hello from Python!')"
+    set command to "python -c \"" plus pythonCode plus "\""
+    
+    try:
+        set result to await exec(command)
+        write result.stdout.trim()
+    catch error:
+        write "Error: " plus error.message
+    end
+    write ""
+end
+
+# Example 2: Python calculations
+async define pythonCalculation():
+    write "2. Python calculation:"
+    
+    set exec to util.promisify(child_process.exec)
+    set pythonCode to "import math; print(math.sqrt(144))"
+    set command to "python -c \"" plus pythonCode plus "\""
+    
+    try:
+        set result to await exec(command)
+        write "Square root of 144 = " plus result.stdout.trim()
+    catch error:
+        write "Error: " plus error.message
+    end
+    write ""
+end
+
+# Example 3: Python with JSON data exchange
+async define pythonJsonExchange():
+    write "3. Python JSON data exchange:"
+    
+    set exec to util.promisify(child_process.exec)
+    set data to { name: "Alice", age: 30 }
+    set jsonData to JSON.stringify(data)
+    set pythonCode to "import json; data = json.loads('" plus jsonData plus "'); print(json.dumps({'message': f'Hello {data[\"name\"]}, you are {data[\"age\"]} years old!'}))"
+    set command to "python -c \"" plus pythonCode plus "\""
+    
+    try:
+        set result to await exec(command)
+        set jsonResult to JSON.parse(result.stdout.trim())
+        write jsonResult.message
+    catch error:
+        write "Error: " plus error.message
+    end
+    write ""
+end
+
+# Example 4: Use Node.js packages from VL
+write "4. Using Node.js packages:"
+require "path" as path
+set filePath to path.join("examples", "python-interop.vl")
+write "Current file: " plus filePath
+write ""
+
+# Run all examples
+async define main():
+    await runInlinePython()
+    await pythonCalculation()
+    await pythonJsonExchange()
+    write "=== Interop examples completed! ==="
+end
+
+main()

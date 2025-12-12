@@ -22,7 +22,7 @@ function printHelp() {
   console.log("  vl run <file.vl>        Run a VL script");
   console.log("  vl build <file.vl>      Transpile VL to JavaScript in dist/");
   console.log("  vl pkg add <name>       Install an npm package");
-  console.log("  vl up                   Update VL toolchain (stub)");
+  console.log("  vl up                   Update VL toolchain to latest version");
   console.log("  vl help                 Show this help");
 }
 

@@ -1,0 +1,61 @@
+# Using Python Module from Verion Language
+
+require "child_process" as child_process
+require "util" as util
+
+write "=== Using Python Module from VL ==="
+write ""
+
+async define callPythonHelper(command, args):
+    set exec to util.promisify(child_process.exec)
+    set cmd to "python examples/python-helper.py " plus command plus " " plus args
+    
+    try:
+        set result to await exec(cmd)
+        return JSON.parse(result.stdout.trim())
+    catch error:
+        write "Error calling Python: " plus error.message
+        return null
+    end
+end
+
+async define main():
+    # Test 1: Greet
+    write "1. Python greet function:"
+    set greeting to await callPythonHelper("greet", "Alice")
+    write greeting
+    write ""
+    
+    # Test 2: Calculate
+    write "2. Python calculate function:"
+    set sum to await callPythonHelper("calculate", "add 10 5")
+    write "10 + 5 = " plus sum
+    set product to await callPythonHelper("calculate", "multiply 7 6")
+    write "7 * 6 = " plus product
+    write ""
+    
+    # Test 3: Process list
+    write "3. Python process list:"
+    set numbers to [5, 2, 8, 1, 9, 3]
+    set jsonNumbers to JSON.stringify(numbers)
+    set stats to await callPythonHelper("process_list", "'" plus jsonNumbers plus "'")
+    write "Numbers: " plus JSON.stringify(numbers)
+    write "Sum: " plus stats.sum
+    write "Average: " plus stats.average
+    write "Min: " plus stats.min
+    write "Max: " plus stats.max
+    write ""
+    
+    # Test 4: Analyze text
+    write "4. Python text analysis:"
+    set text to "Hello World from Verion Language"
+    set analysis to await callPythonHelper("analyze_text", "'" plus text plus "'")
+    write "Text: " plus text
+    write "Words: " plus analysis.word_count
+    write "Characters: " plus analysis.character_count
+    write ""
+    
+    write "=== All Python calls completed! ==="
+end
+
+main()

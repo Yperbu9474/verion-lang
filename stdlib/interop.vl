@@ -1,0 +1,47 @@
+# Verion Language Interoperability Library
+# Provides seamless integration between Node.js and Python
+
+require "child_process" as child_process
+require "util" as util
+require "path" as path
+require "fs" as fs
+
+# Execute Python code and return result
+async define runPython(code):
+    set promisify to util.promisify
+    set exec to promisify(child_process.exec)
+    
+    try:
+        set result to await exec("python -c \"" plus code plus "\"")
+        return result.stdout.trim()
+    catch error:
+        throw new Error("Python execution failed: " plus error.message)
+    end
+end
+
+# Execute Python file and return result
+async define runPythonFile(filePath):
+    set promisify to util.promisify
+    set exec to promisify(child_process.exec)
+    
+    try:
+        set result to await exec("python \"" plus filePath plus "\"")
+        return result.stdout.trim()
+    catch error:
+        throw new Error("Python file execution failed: " plus error.message)
+    end
+end
+
+# Call Python function from a module
+async define callPython(modulePath, functionName, args):
+    set argsJson to JSON.stringify(args)
+    set pythonCode to "import sys; import json; from " plus modulePath plus " import " plus functionName plus "; print(json.dumps(" plus functionName plus "(*json.loads('" plus argsJson plus "'))))"
+    
+    set result to await runPython(pythonCode)
+    return JSON.parse(result)
+end
+
+# Export functions
+export define runPython
+export define runPythonFile
+export define callPython
